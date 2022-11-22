@@ -38,8 +38,10 @@ sudo apt-get update && apt-get install python3 python3-dev python3-pip
 
 Just clone this repo:
 
-```sh
-git clone --recurse-submodules https://https://github.com/PRBonn/voxblox_pybind
+```
+git clone --recurse-submodules https://github.com/ori-drs/voxblox_pybind_drs.git 
+
+
 ```
 
 And install the python bindings:
