@@ -19,11 +19,12 @@ class CowDataset:
 
         self.data_source = os.path.join(data_source, "")
         self.gt_list = self.read_gt_list(os.path.join(self.data_source, "poses.txt"))
-        self.cloud_files = sorted(glob.glob(self.data_source + "*.ply"))
+        self.cloud_files = sorted(glob.glob(self.data_source + "*.ply")) #change to .pcd?
+
 
     @staticmethod
     def read_gt_list(filename):
-        poses = np.loadtxt(filename, delimiter=",", dtype=np.float32)
+        poses = np.loadtxt(filename, delimiter=" ", dtype=np.float32)
         return poses.reshape((len(poses), 4, 4))
 
     @memoize()

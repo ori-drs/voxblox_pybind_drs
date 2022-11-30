@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
-# @file      cow_pipeline.py
-# @author    Ignacio Vizzo     [ivizzo@uni-bonn.de]
+# @file      mickie_pipeline.py
 #
 # Copyright (c) 2021 Ignacio Vizzo, all rights reserved
 import argh
 
-from cow import CowDataset as Dataset
+from mickie import MickieDataset as Dataset
 from tsdf_pipeline import TSDFPipeline
 
 
 def main(
     data_source: str,
-    config: str = "/home/joe/git/voxblox_pybind_drs/examples/python/config/cow.yaml",
+    config: str = "/home/joe/git/voxblox_pybind_drs/examples/python/config/mickie.yaml",
+    #config: str = "config/mickie.yaml",
     n_scans: int = -1,
     jump: int = 0,
     visualize: bool = True,
 ):
     """Help here!"""
     dataset = Dataset(data_source, get_color=False, apply_pose=False)
-    pipeline = TSDFPipeline(dataset, config, jump, n_scans, f"cow_scans_{str(n_scans)}")
+    pipeline = TSDFPipeline(dataset, config, jump, n_scans, f"mickie_scans_{str(n_scans)}")
     pipeline.run()
     pipeline.draw_mesh() if visualize else None
 
