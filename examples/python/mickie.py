@@ -24,11 +24,11 @@ class MickieDataset:
     def isRotationMatrix(self, M):
         tag = False
         I = np.identity(M.shape[0])
-        if np.all((np.matmul(M, M.T)) == I) and (np.linalg.det(M)==1): 
+        if np.all(np.round((np.matmul(M, M.T)),2) == I) and (np.round(np.linalg.det(M),3)): 
             tag = True
-        return tag    
+        return tag
 
-    def transformation_matrix(self, Q, T):
+    def transformation_matrix(self, Q, T, n):
         '''
         Convert a quaternion and translation into a full three-dimensional transformation matrix.
         source https://opensource.docs.anymal.com/doxygen/kindr/master/cheatsheet_latest.pdf
@@ -74,40 +74,35 @@ class MickieDataset:
                             [r20, r21, r22]])
         
         #check orthogonality
-        # if np.array_equal((rot_matrix * (np.transpose(rot_matrix))).round, np.identity(3)):
-        #     print("Error, rotation matrix not orthogonal")
         if (self.isRotationMatrix(rot_matrix) == False):
-            print("Error, rotation matrix not orthogonal")
+            print("Error, rotation matrix ", n," not orthonomal")
+            
             
 
         transf_matrix = np.array([[r00, r01, r02, t0],
-                            [r10, r11, r12, t1],
+                            [r10, r11, r12, t1],      
                             [r20, r21, r22, t2],
                             [0, 0, 0, 1]])
+        #print(transf_matrix)
         transf_matrix_row = np.array([r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2, 0, 0, 0, 1])
         
         return rot_matrix , transf_matrix, transf_matrix_row
 
     #@staticmethod
     def read_gt_list(self, filename):
-        #poses = np.loadtxt(filename, delimiter=" ", dtype=np.float32)
         Q = np.loadtxt(open(filename, "rb"), delimiter=",", dtype=np.float32, usecols=range(6,10)) #, skiprows=1)
-        T = np.loadtxt(open(filename, "rb"), delimiter=",", dtype=np.float32, usecols=range(3,6))
-
-        #Transf  = np.array([]) #np.empty((0,15), np.float32)
-
-        _,Transf, Transf_row = self.transformation_matrix(Q[0][:], T[0][:])
-        for i in range(1, len(Q)):
-            _, transf_matrix, transf_matrix_row =  self.transformation_matrix(Q[i][:], T[i][:])
-            #print(transf_matrix)
-            #Transf = np.append(Transf, transf_row)
-            Transf_row = np.dstack((Transf_row, transf_matrix_row))
+        T = np.loadtxt(open(filename, "rb"), delimiter=",", dtype=np.float32, usecols=range(3,6)) #, skiprows=1)
+        
+        _,Transf, Transf_row = self.transformation_matrix(Q[0][:], T[0][:], 0)
+        for i in range(1, len(Q), 2):
+            _, transf_matrix, transf_matrix_row =  self.transformation_matrix(Q[i][:], T[i][:], i)
+            #transf_matrix_row = np.array([1,0,0,0, 0,1,0,0,0,0,1,0,0,0,0,1]) # 
+            Transf_row = np.vstack((Transf_row, transf_matrix_row))
             
 
-            Transf = np.dstack((Transf, transf_matrix))
-            #print(Transf.shape[2])
-            
-        return Transf.reshape((Transf.shape[2], 4, 4))
+            #Transf = np.dstack((Transf, transf_matrix))
+        #print(Transf_row.reshape((len(Transf_row),4,4)).shape)
+        return Transf_row.reshape((len(Transf_row),4,4))
         
 
     @memoize()

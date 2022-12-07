@@ -1,3 +1,4 @@
+#vdbf_pipeline
 from functools import reduce
 import os
 import time
@@ -6,9 +7,8 @@ from easydict import EasyDict
 import open3d as o3d
 from tqdm import trange
 import yaml
-
-from voxblox import SimpleTsdfIntegrator
-
+import vdbfusion
+import numpy as np
 
 def load_config(config_file: str):
     return EasyDict(yaml.safe_load(open(config_file)))
@@ -19,7 +19,7 @@ def write_config(config: EasyDict, filename: str):
         yaml.dump(config, outfile, default_flow_style=False)
 
 
-class TSDFPipeline:
+class VDBPipeline:
     """Abstract class that defines a Pipeline, derived classes must implement the dataset and config
     properties."""
 
@@ -30,15 +30,15 @@ class TSDFPipeline:
         self._n_scans = len(dataset) if n_scans == -1 else n_scans
         self._jump = jump
         self._map_name = map_name
-        self._tsdf_volume = SimpleTsdfIntegrator(
-            self._config.voxel_size,
-            self._config.sdf_trunc,
-            self._config,
-        )
         self._res = {}
+        self._voxel_size = self._config.voxel_size
+        self._sdf_trunc = self._config.sdf_trunc
+        self._space_carving = self._config.space_carving
+        self._sigma = self._config.sigma
+
 
     def run(self):
-        self._run_tsdf_pipeline()
+        self._run_vdb_pipeline()
         self._write_ply()
         self._write_cfg()
         self._print_tim()
@@ -52,30 +52,15 @@ class TSDFPipeline:
     def __len__(self):
         return len(self._dataset)
 
-    def _run_tsdf_pipeline(self):
-        import time
-        times = []
-        # vis = o3d.visualization.Visualizer()
-        # vis.create_window()
-        
-        for idx in trange(self._jump,  self._n_scans, unit=" frames"):#changed jump to 1 and upper bound not inc jump.
-            
-            scan, pose = self._dataset[idx]
-            #print(pose)
-            tic = time.perf_counter_ns()
-            self._tsdf_volume.integrate(scan, pose)
-            toc = time.perf_counter_ns()
-            times.append(toc - tic)
-            #print(times[-1])
-            
-        self._res = {
-            "mesh": self._get_o3d_mesh(self._tsdf_volume),
-            "times": times,
-        }
-            
-            # if self.vis:
-        #     vis.add_geometry(self._res["mesh"])
-        # vis.run()
+    def _run_vdb_pipeline(self):
+        #vdbf implementation
+        vdb_volume = vdbfusion.VDBVolume(self._voxel_size, self._sdf_trunc, self._space_carving)
+        for scan, pose in self._dataset:
+            vdb_volume.integrate(scan, pose) # PROBLEM HERE, skip first pose !
+                                # lambda sdf:1.0 
+                                # if sdf < self._voxel_size else np.exp(-self._sigma * (sdf- self._voxel_size) ** 2.0),)
+        #extract triangle mesh np arrays from internal map
+        vertice, triangles = vdb_volume.extract_triangle_mesh()
 
     def _write_ply(self):
         os.makedirs(self._config.out_dir, exist_ok=True)
