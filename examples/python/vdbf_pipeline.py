@@ -41,9 +41,10 @@ class VDBPipeline:
         self._run_vdb_pipeline()
         self._write_ply()
         self._write_cfg()
-        self._print_tim()
+
 
     def draw_mesh(self):
+        print("Displaying mesh in Open3D...")
         o3d.visualization.draw_geometries([self._res["mesh"]])
 
     def update_mesh(self):
@@ -55,12 +56,18 @@ class VDBPipeline:
     def _run_vdb_pipeline(self):
         #vdbf implementation
         vdb_volume = vdbfusion.VDBVolume(self._voxel_size, self._sdf_trunc, self._space_carving)
-        for scan, pose in self._dataset:
+        self._vdb_volume = vdb_volume
+        #for scan, pose in self._dataset:
+        for i in range(1, len(self._dataset)):
+            scan, pose = self._dataset[i]
             vdb_volume.integrate(scan, pose) # PROBLEM HERE, skip first pose !
                                 # lambda sdf:1.0 
                                 # if sdf < self._voxel_size else np.exp(-self._sigma * (sdf- self._voxel_size) ** 2.0),)
         #extract triangle mesh np arrays from internal map
-        vertice, triangles = vdb_volume.extract_triangle_mesh()
+        vertices, triangles = vdb_volume.extract_triangle_mesh()
+        self._res = {
+            "mesh": self._get_o3d_mesh(self._vdb_volume),
+            }
 
     def _write_ply(self):
         os.makedirs(self._config.out_dir, exist_ok=True)
@@ -80,9 +87,9 @@ class VDBPipeline:
         print(f"Total time spent integrating= {total_time} [seconds]")
 
     @staticmethod
-    def _get_o3d_mesh(tsdf_volume):
+    def _get_o3d_mesh(vdb_volume):
         print("Meshing...")
-        vertices, triangles = tsdf_volume.extract_triangle_mesh()
+        vertices, triangles = vdb_volume.extract_triangle_mesh()
         mesh = o3d.geometry.TriangleMesh(
             o3d.utility.Vector3dVector(vertices),
             o3d.utility.Vector3iVector(triangles),

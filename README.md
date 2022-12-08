@@ -1,3 +1,15 @@
+# Change Detection in Point clouds Using TSDF Representations
+To run on mickie datasets, data sources must be in the fromat of a folder of individual point clouds and a slam_poses.csv file. \
+Specify datasets on CLI when running mickie_pipeline. \
+Ensure path to config is specified correctly in mickie_pipeline.py file. 
+
+## To run 
+```
+/bin.python mickie_pipeline.py "mickie_dataset_1" "mickie_dataset_2"
+```
+
+
+# The original README starts here 
 # Voxblox Python Bindings
 
 This small library provides python Bindings for the

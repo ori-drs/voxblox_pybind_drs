@@ -1,5 +1,5 @@
 # Main config
-voxel_size: 0.1
+voxel_size: 0.025
 sdf_trunc: 0.3
 out_dir: "results/"
 
@@ -12,7 +12,7 @@ voxels_per_side: 16
 max_weight: 10000.0
 voxel_carving_enabled: false
 min_ray_length_m: 2.0
-max_ray_length_m: 70.0
+max_ray_length_m: 20.0
 use_const_weight: true
 allow_clear: true
 use_weight_dropoff: true

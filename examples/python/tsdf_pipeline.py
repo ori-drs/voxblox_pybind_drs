@@ -53,7 +53,6 @@ class TSDFPipeline:
         return len(self._dataset)
 
     def _run_tsdf_pipeline(self):
-        import time
         times = []
         # vis = o3d.visualization.Visualizer()
         # vis.create_window()
