@@ -20,6 +20,7 @@ class MickieDataset:
         self.data_source = os.path.join(data_source, "")
         self.gt_list = self.read_gt_list(os.path.join(self.data_source, "slam_poses.csv"))
         self.cloud_files = sorted(glob.glob(self.data_source + "*.pcd")) #changed to .pcd rather than .ply
+        
 
     def isRotationMatrix(self, M):
         tag = False

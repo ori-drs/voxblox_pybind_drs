@@ -1,11 +1,11 @@
-from functools import reduce
 import os
 import time
+from functools import reduce
 
-from easydict import EasyDict
 import open3d as o3d
-from tqdm import trange
 import yaml
+from easydict import EasyDict
+from tqdm import trange
 
 from voxblox import SimpleTsdfIntegrator
 

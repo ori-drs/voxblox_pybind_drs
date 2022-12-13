@@ -1,14 +1,14 @@
 #vdbf_pipeline
-from functools import reduce
 import os
 import time
-
-from easydict import EasyDict
-import open3d as o3d
-from tqdm import trange
-import yaml
-import vdbfusion
+from functools import reduce
 import numpy as np
+import open3d as o3d
+import vdbfusion
+import yaml
+from easydict import EasyDict
+from tqdm import trange
+
 
 def load_config(config_file: str):
     return EasyDict(yaml.safe_load(open(config_file)))
@@ -23,7 +23,7 @@ class VDBPipeline:
     """Abstract class that defines a Pipeline, derived classes must implement the dataset and config
     properties."""
 
-    def __init__(self, dataset, config_file: str, jump: int, n_scans: int, map_name: str):
+    def __init__(self, dataset, mission_no, config_file: str, jump: int, n_scans: int, map_name: str):
         self._dataset = dataset
         self.vis = True
         self._config = load_config(config_file)
@@ -35,6 +35,7 @@ class VDBPipeline:
         self._sdf_trunc = self._config.sdf_trunc
         self._space_carving = self._config.space_carving
         self._sigma = self._config.sigma
+        self._mission_no = mission_no
 
 
     def run(self):
@@ -71,7 +72,8 @@ class VDBPipeline:
 
     def _write_ply(self):
         os.makedirs(self._config.out_dir, exist_ok=True)
-        filename = os.path.join(self._config.out_dir, self._map_name) + ".ply"
+
+        filename = os.path.join(self._config.out_dir, self._map_name) + "_" + str(self._mission_no) + ".ply"
         o3d.io.write_triangle_mesh(filename, self._res["mesh"])
 
     def _write_cfg(self):

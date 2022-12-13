@@ -9,7 +9,7 @@ Ensure path to config is specified correctly in mickie_pipeline.py file.
 ```
 
 
-# The original README starts here 
+### The original README starts here 
 # Voxblox Python Bindings
 
 This small library provides python Bindings for the

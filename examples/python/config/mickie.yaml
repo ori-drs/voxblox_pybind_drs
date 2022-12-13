@@ -1,8 +1,10 @@
 # Main config
-voxel_size: 0.025
+voxel_size: 0.07
 sdf_trunc: 0.3
 out_dir: "results/"
 
+mission_1: "results/mickie_scans_-1_1.ply"
+mission_2: "results/mickie_scans_-1_2.ply"
 #vdbfusion 
 space_carving: 1
 sigma: 0.1
@@ -12,7 +14,7 @@ voxels_per_side: 16
 max_weight: 10000.0
 voxel_carving_enabled: false
 min_ray_length_m: 2.0
-max_ray_length_m: 20.0
+max_ray_length_m: 40.0
 use_const_weight: true
 allow_clear: true
 use_weight_dropoff: true
